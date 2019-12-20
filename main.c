@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #define HEIGHT 10
 #define WIDTH 10
@@ -7,6 +9,9 @@
 #define BASE_UPDATE 100000.0
 #define BASE_SPEED 0.0005
 #define ACCELERATION 0.0001
+
+// Global variables
+int y_dir = 0, x_dir = 1, last_axis = 0;
 
 void reprint_map(int **map, int **snake, int score, int snake_size) {
 	system("clear");
@@ -61,20 +66,19 @@ void generate_new_fruit(int **map, int **snake, int snake_size) {
 	// TODO Generate new fruit, that is not inside snake
 }
 
-int vertical_input() {
-	// TODO Check user Input for y_dir
-}
+void *read_input() {
 
-int horizontal_input() {
-	// TODO Check user Input for x_dir
 }
 
 int game_cycle() {
 	// Initialize game
 	int ended = 0, won = 0, score = 0;
 	double update = BASE_UPDATE, speed = BASE_SPEED, timestamp = 0.0;
-	int x_dir = 1, y_dir = 0, last_axis = 0;
 	int snake_size = 1;
+
+	// Start thread to read input
+	pthread_t input_thread;
+	pthread_create(&input_thread, NULL, read_input, NULL);
 
 	int **map = (int**)malloc((HEIGHT + 2) * sizeof(int*));
 	for (int i = 0; i < HEIGHT; i++) { map[i] = (int*)malloc((WIDTH + 2) * sizeof(int)); }
@@ -93,6 +97,7 @@ int game_cycle() {
 	}
 
 	int **snake_parts = (int**)malloc((WIN_SCORE + 1) * sizeof(int*));
+	for (int i = 1; i < WIN_SCORE + 1; i++) { snake_parts[i] = NULL; }
 	snake_parts[0] = &(map[1][1]);
 
 	int fruit_eaten = 0;
@@ -104,13 +109,7 @@ int game_cycle() {
 	// Main Game Loop
 	while (!ended) {
 		// Check user input
-		if (last_axis) {
-			x_dir = horizontal_input();
-			if (x_dir) { y_dir = 0; }
-		} else {
-			y_dir = vertical_input();
-			if (y_dir) { x_dir = 0; }
-		}
+		// TODO Check input using threads
 		
 		// Update map each [update] clicks
 		timestamp += speed;
